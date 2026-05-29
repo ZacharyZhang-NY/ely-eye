@@ -11,7 +11,7 @@ embedding search, runs Qwen3.5-9B with trained LoRA adapters, and checks every
 answer with a verifier. A fifteen-check proof suite exercises the whole thing
 against the live model, so a real run can be told apart from a fabricated one.
 
-The landing site lives at https://ely-eye-web.zhangyanghaha0407.workers.dev
+The landing site lives at https://model.elydora.com/
 (its source is under `ely-eye-web/`, which this repository does not track).
 
 ## Requirements

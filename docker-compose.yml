@@ -1,0 +1,18 @@
+services:
+  ely-eye:
+    build: .
+    ports:
+      - "8765:8765"
+    volumes:
+      - ./.ely_eye:/data/ely-eye
+    environment:
+      ELY_EYE_HOME: /data/ely-eye
+      ELY_EYE_RUNTIME_BACKEND: sglang
+      ELY_EYE_SGLANG_BASE_URL: http://host.docker.internal:8000/v1
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

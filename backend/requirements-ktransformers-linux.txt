@@ -1,0 +1,5 @@
+ktransformers>=0.3.0
+sglang-kt>=0.6.2
+torchvision==0.24.1
+transformers>=4.57.0
+qwen-vl-utils>=0.0.14

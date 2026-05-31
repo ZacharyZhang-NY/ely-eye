@@ -1,0 +1,76 @@
+name: ely-eye-mcp release
+
+on:
+  push:
+    tags:
+      - "mcp-v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - { goos: linux, goarch: amd64 }
+          - { goos: linux, goarch: arm64 }
+          - { goos: darwin, goarch: amd64 }
+          - { goos: darwin, goarch: arm64 }
+          - { goos: windows, goarch: amd64 }
+          - { goos: windows, goarch: arm64 }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25"
+          cache-dependency-path: ely-eye-mcp/go.sum
+      - name: Build and archive
+        working-directory: ely-eye-mcp
+        env:
+          CGO_ENABLED: "0"
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME#mcp-}"
+          binary="ely-eye-mcp"
+          if [ "$GOOS" = "windows" ]; then binary="ely-eye-mcp.exe"; fi
+          ldflags="-s -w -X github.com/ZacharyZhang-NY/ely-eye/ely-eye-mcp/internal/cli.version=${version}"
+          mkdir -p dist
+          go build -trimpath -ldflags "$ldflags" -o "dist/${binary}" ./cmd/ely-eye-mcp
+          base="ely-eye-mcp_${GOOS}_${GOARCH}"
+          cd dist
+          if [ "$GOOS" = "windows" ]; then
+            zip "${base}.zip" "$binary"
+          else
+            tar -czf "${base}.tar.gz" "$binary"
+          fi
+          rm -f "$binary"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: ely-eye-mcp/dist/*
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Generate checksums
+        run: |
+          set -euo pipefail
+          cd dist
+          # Match only the per-target archives (ely-eye-mcp_<os>_<arch>.*); the
+          # single-underscore SHA256SUMS file is excluded so it never hashes itself.
+          sha256sum ely-eye-mcp_*_* > ely-eye-mcp_SHA256SUMS.txt
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          fail_on_unmatched_files: true
+          generate_release_notes: true

@@ -99,6 +99,32 @@ evidence under `.ely_eye/data/eval_proofs/`. Among them:
 .\.venv\Scripts\ely-eye.exe visual-contradiction-proof
 ```
 
+## MCP server for coding agents
+
+`ely-eye-mcp/` is a local Model Context Protocol server that exposes the
+`.ely_eye` memory store to coding agents such as Codex and Claude Code. One
+command builds a native Go binary (or downloads a prebuilt one), installs it
+under `.ely_eye/bin/`, and registers it with both clients. No Docker.
+
+Windows:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\ely-eye-mcp\install.ps1 -Client both
+```
+
+Linux and macOS:
+
+```bash
+bash ./ely-eye-mcp/install.sh --client both
+```
+
+The agent then has nine read-only tools over the live memory — status,
+cartridge listing and detail, Evidence Atom search and fetch, evidence-pack
+compilation, proof suites, and HashHop proofs. The server opens the database
+read-only and never writes to it. The same installer works against any
+`.ely_eye` store, not only this repository. See `ely-eye-mcp/README.md` for the
+full tool list and the release pipeline.
+
 ## Data layout
 
 Runtime state lives under `.ely_eye/` (git-ignored):
@@ -120,7 +146,8 @@ capsule, any attached adapters, and the eval proofs.
 ## Project layout
 
 ```text
-backend/    Python: ingestion, retrieval, runtime, training, proof suite, FastAPI
-frontend/   the local dashboard (Vite + React)
-scripts/    PowerShell: install, model download, serving, runtimes, fine-tuning
+backend/      Python: ingestion, retrieval, runtime, training, proof suite, FastAPI
+frontend/     the local dashboard (Vite + React)
+scripts/      PowerShell: install, model download, serving, runtimes, fine-tuning
+ely-eye-mcp/  Go: local MCP server exposing the memory store to coding agents
 ```

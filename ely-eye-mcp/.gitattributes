@@ -1,0 +1,18 @@
+# Deterministic line endings for the MCP project on Windows, Linux, and macOS.
+# A bash installer checked out with CRLF has a broken shebang on Unix, so shell
+# scripts are pinned to LF regardless of the user's core.autocrlf setting.
+* text=auto
+
+*.sh   text eol=lf
+*.ps1  text eol=crlf
+*.go   text eol=lf
+*.mod  text eol=lf
+*.sum  text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.md   text eol=lf
+
+*.exe    binary
+*.tar.gz binary
+*.zip    binary
